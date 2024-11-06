@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TONX;
 
-[HarmonyPatch(typeof(NotificationPopper), nameof(NotificationPopper.AddItem))]
+[HarmonyPatch(typeof(NotificationPopper), nameof(NotificationPopper.AddDisconnectMessage))]
 public class NotificationPopperPatch
 {
     private static List<string> WaitToSend = new();
@@ -16,7 +16,7 @@ public class NotificationPopperPatch
     public static void AddItem(string text)
     {
         WaitToSend.Add(text);
-        if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
+        if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage(text);
         else WaitToSend.Remove(text);
     }
 }

@@ -56,13 +56,13 @@ public sealed class BallLightning : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetGhostPlayer);
+        using var sender = CreateSender();
         sender.Writer.Write(Ghosts.Count);
         Ghosts.Do(x => { sender.Writer.Write(x.Key); sender.Writer.Write(x.Value); });
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetGhostPlayer) return;
+        
         Ghosts = new();
         for (int i = 0; i < reader.ReadInt32(); i++)
             Ghosts.Add(reader.ReadByte(), reader.ReadByte());

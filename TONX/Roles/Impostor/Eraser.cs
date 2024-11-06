@@ -47,12 +47,12 @@ public sealed class Eraser : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetEraseLimit);
+        using var sender = CreateSender();
         sender.Writer.Write(EraseLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetEraseLimit) return;
+        
         EraseLimit = reader.ReadInt32();
     }
     public override string GetProgressText(bool comms = false) => Utils.ColorString(EraseLimit >= 1 ? Color.red : Color.gray, $"({EraseLimit})");

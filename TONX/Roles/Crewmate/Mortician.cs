@@ -34,7 +34,7 @@ public sealed class Mortician : RoleBase
     private string MsgToSend;
     private void SendRPC(bool add, Vector3 loc = new())
     {
-        using var sender = CreateSender(CustomRPC.SetMorticianArrow);
+        using var sender = CreateSender();
         sender.Writer.Write(add);
         if (add)
         {
@@ -43,9 +43,9 @@ public sealed class Mortician : RoleBase
             sender.Writer.Write(loc.z);
         }
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetMorticianArrow) return;
+        
         if (reader.ReadBoolean())
             LocateArrow.Add(Player.PlayerId, new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
         else LocateArrow.RemoveAllTarget(Player.PlayerId);
@@ -76,7 +76,7 @@ public sealed class Mortician : RoleBase
         LocateArrow.RemoveAllTarget(Player.PlayerId);
         SendRPC(false);
     }
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         if (reporter == null || !Is(reporter) || target == null || reporter.PlayerId == target.PlayerId) return;
         MsgToSend = LastPlayerName.TryGetValue(target.PlayerId, out var name)

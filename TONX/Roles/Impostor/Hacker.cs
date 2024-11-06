@@ -51,12 +51,12 @@ public sealed class Hacker : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetHackerHackLimit);
+        using var sender = CreateSender();
         sender.Writer.Write(HackLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetHackerHackLimit) return;
+        
         HackLimit = reader.ReadInt32();
     }
     public float CalculateKillCooldown() => OptionKillCooldown.GetFloat();

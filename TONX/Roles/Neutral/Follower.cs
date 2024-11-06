@@ -84,13 +84,13 @@ public sealed class Follower : RoleBase, IKiller, IAdditionalWinner
     public bool CanUseSabotageButton() => false;
     private void SendRPC()
     {
-        var sender = CreateSender(CustomRPC.SyncFollowerTargetAndTimes);
+        var sender = CreateSender();
         sender.Writer.Write(BetLimit);
         sender.Writer.Write(BetTarget);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SyncFollowerTargetAndTimes) return;
+        
         BetLimit = reader.ReadInt32();
         BetTarget = reader.ReadByte();
     }

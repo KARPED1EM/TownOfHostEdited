@@ -9,7 +9,7 @@ public static class ConfirmEjections
 {
     // 参考：https://github.com/music-discussion/TownOfHost-TheOtherRoles
 
-    public static void Apply(GameData.PlayerInfo exiledPlayer, bool decidedWinner, List<string> winDescriptionText)
+    public static void Apply(NetworkedPlayerInfo exiledPlayer, bool decidedWinner, List<string> winDescriptionText)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (exiledPlayer == null) return;

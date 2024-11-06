@@ -14,9 +14,27 @@ internal class PingTrackerUpdatePatch
 {
     private static float deltaTime;
     public static string ServerName = "";
+    private static TextMeshPro pingTrackerCredential = null;
+    private static AspectPosition pingTrackerCredentialAspectPos = null;
     private static void Postfix(PingTracker __instance)
     {
-        __instance.text.alignment = TextAlignmentOptions.TopRight;
+        if (pingTrackerCredential == null)
+        {
+            var uselessPingTracker = Object.Instantiate(__instance, __instance.transform.parent);
+            pingTrackerCredential = uselessPingTracker.GetComponent<TextMeshPro>();
+            Object.Destroy(uselessPingTracker);
+            pingTrackerCredential.alignment = TextAlignmentOptions.TopRight;
+            pingTrackerCredential.color = new(1f, 1f, 1f, 0.7f);
+            pingTrackerCredential.rectTransform.pivot = new(1f, 1f);  // 中心を右上角に設定
+            pingTrackerCredentialAspectPos = pingTrackerCredential.GetComponent<AspectPosition>();
+            pingTrackerCredentialAspectPos.Alignment = AspectPosition.EdgeAlignments.RightTop;
+        }
+        if (pingTrackerCredentialAspectPos)
+        {
+            pingTrackerCredentialAspectPos.DistanceFromEdge = DestroyableSingleton<HudManager>.InstanceExists && DestroyableSingleton<HudManager>.Instance.Chat.chatButton.gameObject.active
+                ? new(2.5f, 0f, -800f)
+                : new(1.8f, 0f, -800f);
+        }
 
         StringBuilder sb = new();
         sb.Append(Main.CredentialsText);
@@ -44,11 +62,11 @@ internal class PingTrackerUpdatePatch
         }
 
         var offset_x = 1.2f; //右端からのオフセット
-        if (HudManager.InstanceExists && HudManager._instance.Chat.chatButton.active) offset_x += 0.8f; //チャットボタンがある場合の追加オフセット
+        if (HudManager.InstanceExists && HudManager._instance.Chat.chatButton.gameObject.active) offset_x += 0.8f; //チャットボタンがある場合の追加オフセット
         if (FriendsListManager.InstanceExists && FriendsListManager._instance.FriendsListButton.Button.active) offset_x += 0.8f; //フレンドリストボタンがある場合の追加オフセット
         __instance.GetComponent<AspectPosition>().DistanceFromEdge = new Vector3(offset_x, 0f, 0f);
 
-        __instance.text.text = sb.ToString();
+        pingTrackerCredential.text = sb.ToString();
     }
 }
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
@@ -171,6 +189,13 @@ internal class TitleLogoPatch
 
         foreach (var kvp in mainButtons)
             kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item1, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
+
+
+        try
+        {
+            mainButtons?.Keys?.Flatten()?.DoIf(x => x != null, x => x.buttonText.color = Color.white);
+        }
+        catch { }
 
         GameObject.Find("Divider")?.SetActive(false);
 

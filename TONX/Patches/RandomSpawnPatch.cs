@@ -1,4 +1,5 @@
 using HarmonyLib;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,56 +68,141 @@ public enum SpawnPoint
 }
 class RandomSpawn
 {
-    [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.SnapTo), typeof(Vector2), typeof(ushort))]
-    public class CustomNetworkTransformPatch
+    public static Dictionary<byte, bool> FirstTP = new();
+    public static Dictionary<PlayerControl, Vector2> FastSpawnPosition = new();
+    public static bool hostReady;
+    [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.HandleRpc))]
+    public class CustomNetworkTransformHandleRpcPatch
     {
         public static Dictionary<byte, bool> FirstTP = new();
-        public static void Postfix(CustomNetworkTransform __instance, Vector2 position, ushort minSid)
+        public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
         {
-            var player = Main.AllPlayerControls.Where(p => p.NetTransform == __instance).FirstOrDefault();
-            if (player == null)
+            if (!AmongUsClient.Instance.AmHost)
             {
-                Logger.Warn("プレイヤーがnullです", "RandomSpawn");
-                return;
+                return true;
             }
-            //Logger.Info($"{player.name} pos:{position} minSid={minSid}", "SnapTo");
-            if (!AmongUsClient.Instance.AmHost) return;
 
-            if (GameStates.IsInTask)
+            if (!__instance.isActiveAndEnabled)
             {
-                if (player.Is(CustomRoles.GM)) return; //GMは対象外に
-
-                if (Main.NormalOptions.MapId != 4) return;//AirShip以外無効
-
-                if (position == new Vector2(-25f, 40f))
-                {
-                    //最初の湧き地点なら次回スポーン
-                    FirstTP[player.PlayerId] = true;
-                    return;
-                }
-
-                if (FirstTP[player.PlayerId])
-                {
-                    FirstTP[player.PlayerId] = false;
-                    //ランダムスポーンをvanillaの初期スポーンより後の判定とする
-                    __instance.lastSequenceId++;
-                    AirshipSpawn(player);
-                    __instance.lastSequenceId--;
-                }
+                return false;
             }
+            if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+            {
+                var player = __instance.myPlayer;
+                // プレイヤーがまだ湧いていない
+                if (!PlayerState.GetByPlayerId(player.PlayerId).HasSpawned)
+                {
+                    // SnapTo先の座標を読み取る
+                    Vector2 position;
+                    {
+                        var newReader = MessageReader.Get(reader);
+                        position = NetHelpers.ReadVector2(newReader);
+                        newReader.Recycle();
+                    }
+                    Logger.Info($"SnapTo: {player.GetRealName()}, ({position.x}, {position.y})", "RandomSpawn");
+                    // SnapTo先が湧き位置だったら湧き処理に進む
+                    if (IsAirshipVanillaSpawnPosition(position))
+                    {
+                        AirshipSpawn(player);
+                        return!IsRandomSpawn();
+                    }
+                    else
+                    {
+                        Logger.Info("ポジションは湧き位置ではありません", "RandomSpawn");
+                    }
+                }
+                //Logger.Info($"{player.name} pos:{position} minSid={minSid}", "SnapTo");
+            }
+            return true;
         }
     }
+    private static bool IsAirshipVanillaSpawnPosition(Vector2 position)
+    {
+        // 湧き位置の座標が0.1刻みであることを利用し，float型の誤差やReadVector2の実装による誤差の拡大の対策として座標を10倍したint型で比較する
+        var decupleXFloat = position.x * 10f;
+        var decupleYFloat = position.y * 10f;
+        var decupleXInt = Mathf.RoundToInt(decupleXFloat);
+        // 10倍した値の差が0.1近く以上あったら，元の座標が0.1刻みではないので湧き位置ではない
+        if (Mathf.Abs(((float)decupleXInt) - decupleXFloat) >= 0.09f)
+        {
+            return false;
+        }
+        var decupleYInt = Mathf.RoundToInt(decupleYFloat);
+        if (Mathf.Abs(((float)decupleYInt) - decupleYFloat) >= 0.09f)
+        {
+            return false;
+        }
+        var decuplePosition = (decupleXInt, decupleYInt);
+        return decupleVanillaSpawnPositions.Contains(decuplePosition);
+    }
+    private static readonly HashSet<(int x, int y)> decupleVanillaSpawnPositions = new()
+
+ {
+             (-7, 85),  // 宿舎前通路
+                (-7, -10),  // エンジン
+                (-70, -115),  // キッチン
+                (335, -15),  // 貨物
+                (200, 105),  // アーカイブ
+                (155, 0),  // メインホール
+            };
+
+[HarmonyPatch(typeof(SpawnInMinigame), nameof(SpawnInMinigame.SpawnAt))]
+public static class SpawnInMinigameSpawnAtPatch
+{
+    public static bool Prefix(SpawnInMinigame __instance, [HarmonyArgument(0)] SpawnInMinigame.SpawnLocation spawnPoint)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            return true;
+        }
+
+        if (__instance.amClosing != Minigame.CloseState.None)
+        {
+            return false;
+        }
+        // ランダムスポーンが有効ならバニラの湧きをキャンセル
+        if (IsRandomSpawn())
+        {
+            // バニラ処理のRpcSnapToをAirshipSpawnに置き換えたもの
+            __instance.gotButton = true;
+            PlayerControl.LocalPlayer.SetKinematic(true);
+            PlayerControl.LocalPlayer.NetTransform.SetPaused(true);
+            AirshipSpawn(PlayerControl.LocalPlayer);
+            DestroyableSingleton<HudManager>.Instance.PlayerCam.SnapToTarget();
+            __instance.StopAllCoroutines();
+            __instance.StartCoroutine(__instance.CoSpawnAt(PlayerControl.LocalPlayer, spawnPoint));
+            return false;
+        }
+        else
+        {
+            AirshipSpawn(PlayerControl.LocalPlayer);
+            return true;
+        }
+    }
+    }
+
     public static void AirshipSpawn(PlayerControl player)
     {
-        if (player.Is(CustomRoles.Penguin))
+        Logger.Info($"Spawn: {player.GetRealName()}", "RandomSpawn");
+        if (AmongUsClient.Instance.AmHost)
         {
-            var penguin = player.GetRoleClass() as Penguin;
-            penguin?.OnSpawnAirship();
+            if (player.Is(CustomRoles.Penguin))
+            {
+                var penguin = player.GetRoleClass() as Penguin;
+                penguin?.OnSpawnAirship();
+            }
+            player.RpcResetAbilityCooldown();
+            if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
+            if (IsRandomSpawn())
+            {
+                new AirshipSpawnMap().RandomTeleport(player);
+            }
+            else if (player.Is(CustomRoles.GM))
+            {
+                new AirshipSpawnMap().FirstTeleport(player);
+            }
         }
-        player.RpcResetAbilityCooldown();
-        if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
-        if (!IsRandomSpawn()) return; //ランダムスポーンが無効ならreturn
-        new AirshipSpawnMap().RandomTeleport(player);
+        PlayerState.GetByPlayerId(player.PlayerId).HasSpawned = true;
     }
     public static bool IsRandomSpawn()
     {
@@ -249,15 +335,24 @@ class RandomSpawn
         public virtual void RandomTeleport(PlayerControl player)
         {
             var location = GetLocation();
-            Logger.Info($"{player.Data.PlayerName}:{location}", "RandomSpawn");
-            TP(player.NetTransform, location);
+            Teleport(player, true);
         }
-        public Vector2 GetLocation()
+        public virtual void FirstTeleport(PlayerControl player)
         {
-            var locations =
-                Positions.ToArray().Where(o => o.Key.GetBool()).Any()
-                ? Positions.ToArray().Where(o => o.Key.GetBool())
-                : Positions.ToArray();
+            Teleport(player, false);
+        }
+
+        private void Teleport(PlayerControl player, bool isRadndom)
+        {
+            var location = GetLocation(!isRadndom);
+            Logger.Info($"{player.Data.PlayerName}:{location}", "RandomSpawn");
+            player.RpcSnapToForced(location);
+        }
+        public Vector2 GetLocation(Boolean first = false)
+        {
+            var EnableLocations = Positions.Where(o => o.Key.GetBool()).ToArray();
+            var locations = EnableLocations.Length != 0 ? EnableLocations : Positions.ToArray();
+            if (first) return locations[0].Value;
             var location = locations.OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
             return location.Value;
         }

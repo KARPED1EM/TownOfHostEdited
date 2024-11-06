@@ -24,14 +24,12 @@ internal class ControllerManagerUpdatePatch
             {
                 if (Input.GetKey(KeyCode.LeftControl)) OptionShower.Previous();
                 else OptionShower.Next();
-                OptionShowerPatch.Scroller.ScrollToTop();
             }
             for (var i = 0; i < 9; i++)
             {
                 if (ORGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.pages.Count >= i + 1)
                 {
                     OptionShower.currentPage = i;
-                    OptionShowerPatch.Scroller.ScrollToTop();
                 }
             }
             // 現在の設定を文字列形式のデータに変換してコピー
@@ -217,7 +215,7 @@ internal class ControllerManagerUpdatePatch
         if (Input.GetKeyDown(KeyCode.Equals))
         {
             Main.VisibleTasksCount = !Main.VisibleTasksCount;
-            DestroyableSingleton<HudManager>.Instance.Notifier.AddItem("VisibleTaskCountが" + Main.VisibleTasksCount.ToString() + "に変更されました。");
+            DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage("VisibleTaskCountが" + Main.VisibleTasksCount.ToString() + "に変更されました。");
         }
 
         //获取现在的坐标

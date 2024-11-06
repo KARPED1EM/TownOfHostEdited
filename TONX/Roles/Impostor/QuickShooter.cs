@@ -53,12 +53,12 @@ public sealed class QuickShooter : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetQuickShooterShotLimit);
+        using var sender = CreateSender();
         sender.Writer.Write(ShotLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetQuickShooterShotLimit) return;
+        
         ShotLimit = reader.ReadInt32();
     }
     public override void ApplyGameOptions(IGameOptions opt)

@@ -33,7 +33,7 @@ public sealed class Jester : RoleBase
     {
         OptionCanUseButton = BooleanOptionItem.Create(RoleInfo, 10, OptionName.JesterCanUseButton, false, false);
     }
-    public override Action CheckExile(GameData.PlayerInfo exiled, ref bool DecidedWinner, ref List<string> WinDescriptionText)
+    public override Action CheckExile(NetworkedPlayerInfo exiled, ref bool DecidedWinner, ref List<string> WinDescriptionText)
     {
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return null;
 
@@ -45,7 +45,7 @@ public sealed class Jester : RoleBase
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
         };
     }
-    public override bool OnCheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override bool OnCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         if (Is(reporter) && target == null && !OptionCanUseButton.GetBool())
         {

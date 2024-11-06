@@ -37,12 +37,12 @@ public sealed class Vigilante : RoleBase, IKiller
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.VigilanteKill);
+        using var sender = CreateSender();
         sender.Writer.Write(IsKilled);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.VigilanteKill) return;
+        
         IsKilled = reader.ReadBoolean();
     }
     public float CalculateKillCooldown() => CanUseKillButton() ? 0f : 255f;

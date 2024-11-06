@@ -67,12 +67,12 @@ public sealed class Medic : RoleBase, IKiller
     }
     private void SendRPC_SyncLimit()
     {
-        using var sender = CreateSender(CustomRPC.SetMedicProtectLimit);
+        using var sender = CreateSender();
         sender.Writer.Write(ProtectLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetMedicProtectLimit) return;
+        
         ProtectLimit = reader.ReadInt32();
     }
     private static void SendRPC_SyncList()

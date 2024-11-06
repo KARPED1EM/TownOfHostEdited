@@ -25,8 +25,8 @@ public class StringOptionItem : OptionItem
         );
     }
     public static StringOptionItem Create(
-            int id, Enum name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue
-        )
+        int id, Enum name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue
+    )
     {
         return new StringOptionItem(
             id, name.ToString(), defaultIndex, tab, isSingleValue, selections
@@ -55,8 +55,8 @@ public class StringOptionItem : OptionItem
         //0%or100%の場合
         if (Selections.Length == 2) return CurrentValue * 100;
 
-        //TONX的职业生成模式
-        if (Selections.Length == 3) return CurrentValue;
+    //TONX的职业生成模式
+    if (Selections.Length == 3) return CurrentValue;
 
         //0%～100%or5%～100%の場合
         var offset = 12 - Selections.Length;

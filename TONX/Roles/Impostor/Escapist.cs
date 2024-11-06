@@ -38,12 +38,12 @@ public sealed class Escapist : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SyncEscapist);
+        using var sender = CreateSender();
         sender.Writer.Write(Marked);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SyncEscapist) return;
+        
         Marked = reader.ReadBoolean();
     }
     public override bool GetAbilityButtonText(out string text)

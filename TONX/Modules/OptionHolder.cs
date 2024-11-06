@@ -204,6 +204,8 @@ public static class Options
     public static OptionItem SabotageTimeControl;
     public static OptionItem PolusReactorTimeLimit;
     public static OptionItem AirshipReactorTimeLimit;
+    public static OptionItem FungleReactorTimeLimit;
+    public static OptionItem FungleMushroomMixupDuration;
 
     public static OptionItem LightsOutSpecialSettings;
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
@@ -347,6 +349,8 @@ public static class Options
     public static OptionItem KickPlayerFriendCodeNotExist;
     public static OptionItem ApplyDenyNameList;
     public static OptionItem ApplyBanList;
+    public static OptionItem FixSpawnPacketSize;
+
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
     public static OptionItem AutoKickStartTimes;
@@ -463,7 +467,11 @@ public static class Options
         if (IsLoaded) return;
         OptionSaver.Initialize();
 
-        // 预设
+        // 预设//9人以上部屋で落ちる現象の対策
+        FixSpawnPacketSize = BooleanOptionItem.Create(1_000_200, "FixSpawnPacketSize", false, TabGroup.SystemSettings, true)
+            .SetColor(new Color32(255, 255, 0, 255))
+            .SetGameMode(CustomGameMode.All);
+
         _ = PresetOptionItem.Create(0, TabGroup.SystemSettings)
             .SetColor(new Color32(255, 235, 4, byte.MaxValue))
             .SetHeader(true);
@@ -938,6 +946,12 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
         AirshipReactorTimeLimit = FloatOptionItem.Create(3_021_003, "AirshipReactorTimeLimit", new(1f, 90f, 1f), 60f, TabGroup.GameSettings, false).SetParent(SabotageTimeControl)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+        FungleReactorTimeLimit = FloatOptionItem.Create(3_021_004, "FungleReactorTimeLimit", new(1f, 90f, 1f), 60f, TabGroup.GameSettings, false).SetParent(SabotageTimeControl)
+               .SetValueFormat(OptionFormat.Seconds)
+               .SetGameMode(CustomGameMode.Standard);
+        FungleMushroomMixupDuration = FloatOptionItem.Create(3_021_005, "FungleMushroomMixupDuration", new(1f, 20f, 1f), 10f, TabGroup.GameSettings, false).SetParent(SabotageTimeControl)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
 

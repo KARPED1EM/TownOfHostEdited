@@ -48,7 +48,7 @@ public sealed class Cleaner : RoleBase, IImpostor
         return true;
     }
     public override string GetReportButtonText() => Translator.GetString("CleanerReportButtonText");
-    public override bool OnCheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override bool OnCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         if (BodiesCleanedUp.Contains(target.PlayerId))
         {

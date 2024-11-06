@@ -82,7 +82,7 @@ public sealed class Messenger : RoleBase, IImpostor, IKillFlashSeeable
         }
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         if (!Player.IsAlive())
         {
@@ -144,16 +144,13 @@ public sealed class Messenger : RoleBase, IImpostor, IKillFlashSeeable
         CreateMurderNotify(room);
         if (AmongUsClient.Instance.AmHost)
         {
-            using var sender = CreateSender(CustomRPC.MessengerCreateMurderNotify);
+            using var sender = CreateSender();
             sender.Writer.Write((byte)room);
         }
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType == CustomRPC.MessengerCreateMurderNotify)
-        {
-            CreateMurderNotify((SystemTypes)reader.ReadByte());
-        }
+        CreateMurderNotify((SystemTypes)reader.ReadByte());
     }
     /// <summary>
     /// 名前の下にキル発生通知を出す

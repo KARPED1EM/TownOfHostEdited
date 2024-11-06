@@ -50,7 +50,7 @@ public sealed class Medium : RoleBase
         ContactLimit = OptionContactNums.GetInt();
         ContactPlayer = byte.MaxValue;
     }
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         ContactPlayer = byte.MaxValue;
         if (target == null || Player.PlayerId == target.PlayerId || !Player.IsAlive() || ContactLimit < 1) return;

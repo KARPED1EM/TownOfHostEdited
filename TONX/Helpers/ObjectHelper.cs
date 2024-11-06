@@ -1,10 +1,17 @@
 using HarmonyLib;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TONX;
 
 public static class ObjectHelper
 {
+    public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection)
+    {
+        return collection.SelectMany(x => x);
+    }
+
     /// <summary>
     /// オブジェクトの<see cref="TextTranslatorTMP"/>コンポーネントを破棄します
     /// </summary>

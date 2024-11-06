@@ -59,7 +59,7 @@ public sealed class Repairman : RoleBase, ISystemTypeUpdateHook
     public int UsedSkillCount;
 
     private bool DoorsProgressing = false;
-    private bool fixedComms = false;
+    private bool fixedSabotage;
 
     public static void SetupOptionItem()
     {
@@ -124,17 +124,21 @@ public sealed class Repairman : RoleBase, ISystemTypeUpdateHook
         if (tags == HqHudSystemType.Tags.ActiveBit)
         {
             //パネル開いたタイミング
-            fixedComms = false;
+            fixedSabotage = false;
         }
-        if (!fixedComms && tags == HqHudSystemType.Tags.FixBit)
+        if (!fixedSabotage && tags == HqHudSystemType.Tags.FixBit)
+        {
+            //パネル開いたタイミング
+            fixedSabotage = false;
+        }
+        if (!fixedSabotage && tags == HqHudSystemType.Tags.FixBit)
         {
             //片方の入力が正解したタイミング
-            fixedComms = true;
-            //MiraHQのコミュは16,17がそろったとき完了。
+            fixedSabotage = true;
+            //ヘリサボは16,17がそろったとき完了。            //MiraHQのコミュは16,17がそろったとき完了。
             var consoleId = amount & HqHudSystemType.IdMask;
             var otherConsoleId = (consoleId + 1) % 2;
             //もう一方のパネルの完了報告
-            ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, Player, (byte)(otherConsoleId | (int)HqHudSystemType.Tags.FixBit));
             UsedSkillCount++;
         }
         return true;

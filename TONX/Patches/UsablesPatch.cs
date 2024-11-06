@@ -7,7 +7,7 @@ namespace TONX;
 [HarmonyPatch(typeof(Console), nameof(Console.CanUse))]
 class CanUsePatch
 {
-    public static bool Prefix(ref float __result, Console __instance, [HarmonyArgument(0)] GameData.PlayerInfo pc, [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
+    public static bool Prefix(ref float __result, Console __instance, [HarmonyArgument(0)] NetworkedPlayerInfo pc, [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
     {
         canUse = couldUse = false;
         //こいつをfalseでreturnしても、タスク(サボ含む)以外の使用可能な物は使えるまま(ボタンなど)
@@ -25,7 +25,7 @@ class EmergencyMinigamePatch
 [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
 class CanUseVentPatch
 {
-    public static bool Prefix(Vent __instance, [HarmonyArgument(0)] GameData.PlayerInfo pc,
+    public static bool Prefix(Vent __instance, [HarmonyArgument(0)] NetworkedPlayerInfo pc,
         [HarmonyArgument(1)] ref bool canUse,
         [HarmonyArgument(2)] ref bool couldUse,
         ref float __result)
@@ -36,7 +36,7 @@ class CanUseVentPatch
 
         // カスタムロールを元にベントを使えるか判定
         // エンジニアベースの役職は常にtrue
-        couldUse = playerControl.CanUseImpostorVentButton() || pc.Role.Role == RoleTypes.Engineer;
+        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(__instance.Cast<IUsable>()));
 
         canUse = couldUse;
         // カスタムロールが使えなかったら使用不可

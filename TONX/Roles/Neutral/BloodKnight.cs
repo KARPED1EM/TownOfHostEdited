@@ -57,12 +57,12 @@ public sealed class BloodKnight : RoleBase, IKiller, ISchrodingerCatOwner
     public override void Add() => ProtectStartTime = 0;
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetBKTimer);
+        using var sender = CreateSender();
         sender.Writer.Write(ProtectStartTime.ToString());
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetBKTimer) return;
+        
         ProtectStartTime = long.Parse(reader.ReadString());
     }
     public float CalculateKillCooldown() => OptionKillCooldown.GetFloat();

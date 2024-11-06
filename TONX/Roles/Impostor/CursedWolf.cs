@@ -45,12 +45,12 @@ public sealed class CursedWolf : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetCursedWolfSpellCount);
+        using var sender = CreateSender();
         sender.Writer.Write(SpellLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetCursedWolfSpellCount) return;
+        
         SpellLimit = reader.ReadInt32();
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)

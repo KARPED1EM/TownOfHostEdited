@@ -36,9 +36,9 @@ public class Main : BasePlugin
     public const string DebugKeySalt = "59687b";
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     // == 版本相关设定 / Version Config ==
-    public const string LowestSupportedVersion = "2023.10.24";
+    public const string LowestSupportedVersion = "2024.10.29";
     public static readonly bool IsPublicAvailableOnThisVersion = false;
-    public const string PluginVersion = "3.0.1";
+    public const string PluginVersion = "3.0.2";
     public const int PluginCreation = 1;
     // == 链接相关设定 / Link Config ==
     public static readonly bool ShowWebsiteButton = true;
@@ -58,7 +58,7 @@ public class Main : BasePlugin
     public static string ExceptionMessage;
     public static bool ExceptionMessageIsShown = false;
     public static string CredentialsText;
-    public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
+    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
     //Client Options
     public static ConfigEntry<string> HideName { get; private set; }
     public static ConfigEntry<string> HideColor { get; private set; }
@@ -222,6 +222,9 @@ public class Main : BasePlugin
                 {CustomRoles.Crewmate, "#ffffff"},
                 {CustomRoles.Engineer, "#8cffff"},
                 {CustomRoles.Scientist, "#8cffff"},
+                  {CustomRoles.Noisemaker, "#8cffff"},
+                {CustomRoles.Tracker, "#8cffff"},
+                {CustomRoles.Phantom, "#ff1919"},
                 {CustomRoles.GuardianAngel, "#ffffff"},
                 {CustomRoles.Impostor, "#ff1919"},
                 {CustomRoles.Shapeshifter, "#ff1919"},

@@ -53,12 +53,12 @@ public sealed class Assassin : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetMarkedPlayer);
+        using var sender = CreateSender();
         sender.Writer.Write(MarkedPlayer);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetMarkedPlayer) return;
+        
         MarkedPlayer = reader.ReadByte();
     }
     public bool CanUseKillButton()

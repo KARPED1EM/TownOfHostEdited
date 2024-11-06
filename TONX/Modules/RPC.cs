@@ -22,24 +22,10 @@ public enum CustomRPC
     EndGame,
     PlaySound,
     SetCustomRole,
-    SetBountyTarget,
-    WitchSync,
-    SetSheriffShotLimit,
-    SetDousedPlayer,
     SetNameColorData,
-    SniperSync,
     SetLoversPlayers,
-    SetExecutionerTarget,
-    SetCurrentDousingTarget,
-    SetEvilTrackerTarget,
     SetRealKiller,
-    SyncPuppet,
-    SetSchrodingerCatTeam,
-    StealthDarken,
-    MessengerCreateMurderNotify,
-    PenguinSync,
-    MareSync,
-    SyncPlagueDoctor,
+    CustomRoleSync,
 
     //TONX
     AntiBlackout,
@@ -54,38 +40,39 @@ public enum CustomRPC
     SetKickReason,
 
     //Roles
-    SetDrawPlayer,
-    SetCurrentDrawTarget,
-    SyncPelicanEatenPlayers,
-    VigilanteKill,
-    SetDemonHealth,
-    SetDeceiverSellLimit,
-    SetMedicProtectLimit,
-    SetGangsterRecruitLimit,
-    SetGhostPlayer,
-    SetStalkerrKillCount,
-    SetCursedWolfSpellCount,
-    SetCollectorVotes,
-    SetQuickShooterShotLimit,
-    SetEraseLimit,
-    SuicideWithAnime,
-    SetMarkedPlayer,
-    SetConcealerTimer,
-    SetMedicProtectList,
-    SetHackerHackLimit,
-    SyncPsychicRedList,
-    SetMorticianArrow,
     Judge,
     Guess,
-    SetSwooperTimer,
-    SetBKTimer,
-    SyncFollowerTargetAndTimes,
-    SetSuccubusCharmLimit,
-    SyncPuppeteerList,
-    SyncWarlock,
-    SyncEscapist,
     OnClickMeetingButton,
-    SyncMarioVentedTimes,
+    SuicideWithAnime,
+    SetMedicProtectList,
+    //SetDrawPlayer,
+    //SetCurrentDrawTarget,
+    //SyncPelicanEatenPlayers,
+    //VigilanteKill,
+    //SetDemonHealth,
+    //SetDeceiverSellLimit,
+    //SetMedicProtectLimit,
+    //SetGangsterRecruitLimit,
+    //SetGhostPlayer,
+    //SetStalkerrKillCount,
+    //SetCursedWolfSpellCount,
+    //SetCollectorVotes,
+    //SetQuickShooterShotLimit,
+    //SetEraseLimit,
+    //SetMarkedPlayer,
+    //SetConcealerTimer,
+
+    //SetHackerHackLimit,
+    //SyncPsychicRedList,
+    //SetMorticianArrow,
+    //SetSwooperTimer,
+    //SetBKTimer,
+    //SyncFollowerTargetAndTimes,
+    //SetSuccubusCharmLimit,
+    //SyncPuppeteerList,
+    //SyncWarlock,
+    //SyncEscapist,
+    //SyncMarioVentedTimes,
 }
 public enum Sounds
 {
@@ -110,6 +97,7 @@ internal class RPCHandlerPatch
         switch (rpcType)
         {
             case RpcCalls.SetName: //SetNameRPC
+                subReader.ReadUInt32();
                 string name = subReader.ReadString();
                 if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
                 Logger.Info("RPC名称修改:" + __instance.GetNameWithRole() + " => " + name, "SetName");
@@ -313,8 +301,8 @@ internal class RPCHandlerPatch
             case CustomRPC.SetKickReason:
                 ShowDisconnectPopupPatch.ReasonByHost = reader.ReadString();
                 break;
-            default:
-                CustomRoleManager.DispatchRpc(reader, rpcType);
+            case CustomRPC.CustomRoleSync:
+                CustomRoleManager.DispatchRpc(reader);
                 break;
         }
     }

@@ -112,9 +112,9 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable
         var realKiller = target.GetRealKiller() ?? killer;
         return realKiller.Is(CustomRoleTypes.Impostor) && realKiller != target;
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetEvilTrackerTarget) return;
+        
 
         var operation = (TargetOperation)reader.ReadByte();
 
@@ -131,7 +131,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable
         CanSetTarget = true;
         if (AmongUsClient.Instance.AmHost)
         {
-            using var sender = CreateSender(CustomRPC.SetEvilTrackerTarget);
+            using var sender = CreateSender();
             sender.Writer.Write((byte)TargetOperation.ReEnableTargeting);
         }
     }
@@ -140,7 +140,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable
         TargetId = byte.MaxValue;
         if (AmongUsClient.Instance.AmHost)
         {
-            using var sender = CreateSender(CustomRPC.SetEvilTrackerTarget);
+            using var sender = CreateSender();
             sender.Writer.Write((byte)TargetOperation.RemoveTarget);
         }
     }
@@ -154,7 +154,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable
         TargetArrow.Add(Player.PlayerId, targetId);
         if (AmongUsClient.Instance.AmHost)
         {
-            using var sender = CreateSender(CustomRPC.SetEvilTrackerTarget);
+            using var sender = CreateSender();
             sender.Writer.Write((byte)TargetOperation.SetTarget);
             sender.Writer.Write(targetId);
         }

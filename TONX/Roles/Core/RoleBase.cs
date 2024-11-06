@@ -54,8 +54,10 @@ public abstract class RoleBase : IDisposable
         CanBeMadmate = canBeMadmate ?? Player.Is(CustomRoleTypes.Crewmate);
         HasAbility = hasAbility ?? roleInfo.BaseRoleType.Invoke() is
             RoleTypes.Shapeshifter or
+             RoleTypes.Phantom or
             RoleTypes.Engineer or
             RoleTypes.Scientist or
+            RoleTypes.Tracker or
             RoleTypes.GuardianAngel or
             RoleTypes.CrewmateGhost or
             RoleTypes.ImpostorGhost;
@@ -94,9 +96,9 @@ public abstract class RoleBase : IDisposable
     protected class RoleRPCSender : IDisposable
     {
         public MessageWriter Writer;
-        public RoleRPCSender(RoleBase role, CustomRPC rpcType)
+        public RoleRPCSender(RoleBase role)
         {
-            Writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpcType, SendOption.Reliable, -1);
+            Writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CustomRoleSync, SendOption.Reliable, -1);
             Writer.Write(role.Player.PlayerId);
         }
         public void Dispose()
@@ -110,9 +112,9 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="rpcType">发送的 RPC 类型</param>
     /// <returns>用于发送的 RoleRPCSender</returns>
-    protected RoleRPCSender CreateSender(CustomRPC rpcType)
+    protected RoleRPCSender CreateSender()
     {
-        return new RoleRPCSender(this, rpcType);
+        return new RoleRPCSender(this);
     }
     /// <summary>
     /// 接受到 RPC 时的函数
@@ -121,7 +123,7 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="reader">收到 RPC 内容</param>
     /// <param name="rpcType">收到 RPC 类型</param>
-    public virtual void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public virtual void ReceiveRPC(MessageReader reader)
     { }
     /// <summary>
     /// 可以使用技能按钮
@@ -174,6 +176,21 @@ public abstract class RoleBase : IDisposable
     /// 请注意：全部模组端都会调用
     /// </summary>
     /// <param name="shapeshifter">变形目标</param>
+    ///  /// <summary>
+    /// 自視点のみ変身する
+    /// 抜け殻を自視点のみに残すことが可能
+    /// </summary>
+    public virtual bool CanDesyncShapeshift => false;
+
+    /// <summary>
+    /// シェイプシフトチェック時に呼ばれる
+    /// 自分自身が変身したときのみ呼ばれる
+    /// animateを操作して変身アニメーションのカットも可能
+    /// </summary>
+    /// <param name="target">変身先</param>
+    /// <param name="animate">アニメーションを再生するかどうか</param>
+    /// <returns>falseを返すと変身がキャンセルされる</returns>
+    public virtual bool OnCheckShapeshift(PlayerControl target, ref bool animate) => true;
     public virtual void OnShapeshift(PlayerControl target)
     { }
 
@@ -204,7 +221,7 @@ public abstract class RoleBase : IDisposable
     /// <param name="reporter">报告者</param>
     /// <param name="target">被报告的玩家</param>
     /// <returns>false：取消报告</returns>
-    public virtual bool OnCheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target) => true;
+    public virtual bool OnCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) => true;
 
     /// <summary>
     /// 报告时调用的函数
@@ -212,7 +229,7 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="reporter">报告者</param>
     /// <param name="target">被报告的玩家</param>
-    public virtual void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public virtual void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     { }
 
     /// <summary>
@@ -264,7 +281,7 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="exiled">被驱逐的玩家</param>
     /// <param name="DecidedWinner">是否决定了胜利玩家</param>
-    public virtual void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public virtual void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     { }
 
     /// <summary>
@@ -274,7 +291,7 @@ public abstract class RoleBase : IDisposable
     /// <param name="DecidedWinner">是否决定了胜利玩家</param>
     /// <param name="winDescriptionText">胜利描述文本</param>
     /// <returns>OnExileWrapUp 将要执行的函数</returns>
-    public virtual Action CheckExile(GameData.PlayerInfo exiled, ref bool DecidedWinner, ref List<string> WinDescriptionText) => null;
+    public virtual Action CheckExile(NetworkedPlayerInfo exiled, ref bool DecidedWinner, ref List<string> WinDescriptionText) => null;
 
     /// <summary>
     /// 每次会议结束后调用的函数

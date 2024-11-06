@@ -28,7 +28,7 @@ public class GameStartManagerPatch
     private static TextMeshPro warningText;
     public static TextMeshPro HideName;
     private static TextMeshPro timerText;
-    private static SpriteRenderer cancelButton;
+    private static PassiveButton cancelButton;
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public class GameStartManagerStartPatch
@@ -59,30 +59,31 @@ public class GameStartManagerPatch
             timerText.fontSize = 3.2f;
             timerText.name = "Timer";
             timerText.DestroyChildren();
-            timerText.transform.localPosition += Vector3.down * 0.2f;
+            timerText.transform.localPosition += new Vector3(0.3f, -3.4f, 0f);
             timerText.gameObject.SetActive(AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame && AmongUsClient.Instance.AmHost);
 
             cancelButton = Object.Instantiate(__instance.StartButton, __instance.transform);
             cancelButton.name = "CancelButton";
-            var cancelLabel = cancelButton.GetComponentInChildren<TextMeshPro>();
+            var cancelLabel = cancelButton.buttonText;
             cancelLabel.DestroyTranslator();
             cancelLabel.text = GetString("Cancel");
-            cancelButton.transform.localScale = new(0.4f, 0.4f, 1f);
-            cancelButton.color = Color.red;
-            cancelButton.transform.localPosition = new(0f, -0.37f, 0f);
-            var buttonComponent = cancelButton.GetComponent<PassiveButton>();
-            buttonComponent.OnClick = new();
-            buttonComponent.OnClick.AddListener((Action)(() => __instance.ResetStartState()));
-            cancelButton.gameObject.SetActive(false);
+            cancelButton.transform.localScale = new(0.5f, 0.5f, 1f);
+            var cancelButtonInactiveRenderer = cancelButton.inactiveSprites.GetComponent<SpriteRenderer>();
+            cancelButtonInactiveRenderer.color = new(0.8f, 0f, 0f, 1f);
+            var cancelButtonActiveRenderer = cancelButton.activeSprites.GetComponent<SpriteRenderer>();
+            cancelButtonActiveRenderer.color = Color.red;
+            var cancelButtonInactiveShine = cancelButton.inactiveSprites.transform.Find("Shine");
+            if (cancelButtonInactiveShine)
+            {
+                cancelButtonInactiveShine.gameObject.SetActive(false);
+            }
+            cancelButton.activeTextColor = cancelButton.inactiveTextColor = Color.white;
+            cancelButton.transform.localPosition = new(2f, 0.13f, 0f);
+            cancelButton.OnClick = new();
+            cancelButton.OnClick.AddListener((Action)(() => __instance.ResetStartState()));
 
             if (!AmongUsClient.Instance.AmHost) return;
 
-            // Make Public Button
-            if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !Main.AllowPublicRoom || !VersionChecker.IsSupported || !Main.IsPublicAvailableOnThisVersion)
-            {
-                __instance.MakePublicButton.color = Palette.DisabledClear;
-                __instance.privatePublicText.color = Palette.DisabledClear;
-            }
 
             if (Main.NormalOptions.KillCooldown == 0f)
                 Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
@@ -194,7 +195,7 @@ public class GameStartManagerPatch
             timer = Mathf.Max(0f, timer -= Time.deltaTime);
             int minutes = (int)timer / 60;
             int seconds = (int)timer % 60;
-            string countDown = $"({minutes:00}:{seconds:00})";
+            string countDown = $"{minutes:00}:{seconds:00}";
             if (timer <= 60) countDown = Utils.ColorString(Color.red, countDown);
             timerText.text = countDown;
         }
@@ -236,7 +237,7 @@ public static class GameStartManagerBeginGamePatch
         Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
         AURoleOptions.ShapeshifterCooldown = 0f;
 
-        PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt));
+        PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
 
         __instance.ReallyBegin(false);
         return false;
@@ -275,7 +276,7 @@ class ResetStartStatePatch
         if (GameStates.IsCountDown)
         {
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
-            PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions));
+            PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
         }
     }
 }

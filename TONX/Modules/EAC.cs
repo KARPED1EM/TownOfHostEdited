@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using Hazel;
+using Mono.Cecil.Mdb;
 using System;
 using System.Linq;
 using TONX.Roles.Core;
@@ -36,6 +37,7 @@ internal class EAC
             switch (rpc)
             {
                 case RpcCalls.SetName:
+                    reader.ReadUInt32();
                     string name = sr.ReadString();
                     if (sr.BytesRemaining > 0 && sr.ReadBoolean()) return false;
                     if (

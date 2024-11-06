@@ -33,6 +33,6 @@ public sealed class KillingMachine : RoleBase, IImpostor
     public float CalculateKillCooldown() => KillCooldown.GetFloat();
     public override bool CanUseAbilityButton() => false;
     public bool CanUseSabotageButton() => false;
-    public override bool OnCheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target) => Is(reporter);
+    public override bool OnCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) => Is(reporter);
     public bool CanUseImpostorVentButton { get; } = false;
 }

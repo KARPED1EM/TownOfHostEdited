@@ -6,6 +6,7 @@ using System.Linq;
 using TONX.Roles.Core;
 using TONX.Roles.Core.Interfaces;
 using TONX.Roles.Neutral;
+using UnityEngine;
 using static TONX.Translator;
 
 namespace TONX;
@@ -139,7 +140,8 @@ class GameEndChecker
 
             void SetGhostRole(bool ToGhostImpostor)
             {
-                if (!pc.Data.IsDead) ReviveRequiredPlayerIds.Add(pc.PlayerId);
+                var isDead = pc.Data.IsDead;
+                if (!isDead) ReviveRequiredPlayerIds.Add(pc.PlayerId); 
                 if (ToGhostImpostor)
                 {
                     Logger.Info($"{pc.GetNameWithRole()}: ImpostorGhostに変更", "ResetRoleAndEndGame");
@@ -156,6 +158,7 @@ class GameEndChecker
                         .EndRpc();
                     pc.SetRole(RoleTypes.Crewmate);
                 }
+                pc.Data.IsDead = isDead;
             }
             SetEverythingUpPatch.LastWinsReason = winner is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : "";
         }
@@ -165,36 +168,24 @@ class GameEndChecker
         CustomWinnerHolder.WriteTo(sender.stream);
         sender.EndRpc();
 
-        // GameDataによる蘇生処理
-        writer.StartMessage(1); // Data
+        if (ReviveRequiredPlayerIds.Count > 0)
         {
-            writer.WritePacked(GameData.Instance.NetId); // NetId
-            foreach (var info in GameData.Instance.AllPlayers)
+            // 蘇生 パケットが膨れ上がって死ぬのを防ぐため，1送信につき1人ずつ蘇生する
+            for (int i = 0; i < ReviveRequiredPlayerIds.Count; i++)
             {
-                if (ReviveRequiredPlayerIds.Contains(info.PlayerId))
-                {
-                    // 蘇生&メッセージ書き込み
-                    info.IsDead = false;
-                    writer.StartMessage(info.PlayerId);
-                    info.Serialize(writer);
-                    writer.EndMessage();
-                }
+                var playerId = ReviveRequiredPlayerIds[i];
+                var playerInfo = GameData.Instance.GetPlayerById(playerId);
+                // 蘇生
+                playerInfo.IsDead = false;
+                // 送信
+                playerInfo.MarkDirty();
+                AmongUsClient.Instance.SendAllStreamedObjects();
             }
-            writer.EndMessage();
+            // ゲーム終了を確実に最後に届けるための遅延
         }
 
-        sender.EndMessage();
-
-        // バニラ側のゲーム終了RPC
-        writer.StartMessage(8); //8: EndGame
-        {
-            writer.Write(AmongUsClient.Instance.GameId); //GameId
-            writer.Write((byte)reason); //GameoverReason
-            writer.Write(false); //showAd
-        }
-        writer.EndMessage();
-
-        sender.SendMessage();
+        // ゲーム終了
+        GameManager.Instance.RpcEndGame(reason, false);
     }
 
     public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();

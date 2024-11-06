@@ -51,13 +51,13 @@ public sealed class Swooper : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetSwooperTimer);
+        using var sender = CreateSender();
         sender.Writer.Write(InvisTime.ToString());
         sender.Writer.Write(LastTime.ToString());
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetSwooperTimer) return;
+        
         InvisTime = long.Parse(reader.ReadString());
         LastTime = long.Parse(reader.ReadString());
     }
@@ -165,7 +165,7 @@ public sealed class Swooper : RoleBase, IImpostor
 
         info.DoKill = false;
     }
-    public override void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         LastTime = -1;
         InvisTime = -1;

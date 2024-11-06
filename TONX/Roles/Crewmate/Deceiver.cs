@@ -61,12 +61,12 @@ public sealed class Deceiver : RoleBase, IKiller
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetDeceiverSellLimit);
+        using var sender = CreateSender();
         sender.Writer.Write(SellLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetDeceiverSellLimit) return;
+        
         SellLimit = reader.ReadInt32();
     }
     public float CalculateKillCooldown() => CanUseKillButton() ? OptionSellCooldown.GetFloat() : 255f;

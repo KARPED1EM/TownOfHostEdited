@@ -83,15 +83,15 @@ public sealed class Demon : RoleBase, IKiller, ISchrodingerCatOwner
     public bool CanUseKillButton() => Player.IsAlive();
     private void SendRPC(byte id)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDemonHealth, SendOption.Reliable, -1);
-        writer.Write(Player.PlayerId);
-        writer.Write(id);
-        writer.Write(Player.PlayerId == id ? DemonHP : PlayerHP[id]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+        var sender = CreateSender();
+        sender.Writer.Write(Player.PlayerId);
+        sender.Writer.Write(id);
+        sender.Writer.Write(Player.PlayerId == id ? DemonHP : PlayerHP[id]);
+        sender.Dispose();
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetDemonHealth) return;
+        
         byte id = reader.ReadByte();
         int hp = reader.ReadInt32();
         if (Player.PlayerId == id)

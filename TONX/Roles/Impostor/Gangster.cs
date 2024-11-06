@@ -63,12 +63,12 @@ public sealed class Gangster : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetGangsterRecruitLimit);
+        using var sender = CreateSender();
         sender.Writer.Write(RecruitLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetGangsterRecruitLimit) return;
+        
         RecruitLimit = reader.ReadInt32();
     }
     public float CalculateKillCooldown() => RecruitLimit >= 1 ? OptionKillCooldown.GetFloat() : Options.DefaultKillCooldown;

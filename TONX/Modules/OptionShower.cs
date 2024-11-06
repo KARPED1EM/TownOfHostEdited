@@ -10,37 +10,6 @@ using static TONX.Translator;
 namespace TONX;
 
 [HarmonyPatch(typeof(HudManager))]
-public static class OptionShowerPatch
-{
-    public static float OriginalY = 2.9f;
-    public static Scroller Scroller;
-    public static GameObject GameSettings;
-    public static bool Allow => OptionShower.currentPage != 0 && Input.mousePosition.x < 320f;
-    [HarmonyPatch(nameof(HudManager.Start)), HarmonyPostfix]
-    public static void Start(HudManager __instance)
-    {
-        OptionShower.BuildText();
-        GameSettings = __instance.GameSettings.gameObject;
-        __instance.GameSettings.fontSizeMin =
-        __instance.GameSettings.fontSizeMax = 0.85f;
-        Scroller = __instance.GameSettings.transform.parent.gameObject.AddComponent<Scroller>();
-        Scroller.Inner = __instance.GameSettings.transform;
-        Scroller.SetYBoundsMin(OriginalY);
-        Scroller.allowY = true;
-    }
-    [HarmonyPatch(nameof(HudManager.Update)), HarmonyPostfix]
-    public static void Update(HudManager __instance)
-    {
-        if (GameStates.IsLobby)
-        {
-            var POM = GameObject.Find("PlayerOptionsMenu(Clone)");
-            __instance.GameSettings.text = POM != null ? "" : OptionShower.GetText();
-            Scroller.enabled = Allow;
-            CalculateAndSetYBounds();
-        }
-    }
-    public static void CalculateAndSetYBounds() => Scroller?.SetYBoundsMax(GameSettings.GetComponent<TextMeshPro>().renderedHeight - 2.6f);
-}
 
 public static class OptionShower
 {

@@ -14,7 +14,7 @@ public static class Zoom
     private static bool ResetButtons = false;
     public static void Postfix()
     {
-        if (GameStates.IsLobby && OptionShowerPatch.Allow) return;
+        if (GameStates.IsLobby) return;
         if ((GameStates.IsShip || GameStates.IsLobby) && !GameStates.IsMeeting && GameStates.IsCanMove && !InGameRoleInfoMenu.Showing)
         {
             if (Camera.main.orthographicSize > 3.0f) ResetButtons = true;

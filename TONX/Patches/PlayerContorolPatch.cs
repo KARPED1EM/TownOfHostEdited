@@ -1,9 +1,11 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using LibCpp2IL;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TONX.Modules;
 using TONX.Roles.AddOns.Crewmate;
@@ -197,6 +199,81 @@ class MurderPlayerPatch
             Main.FirstDied = target.PlayerId;
     }
 }
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
+public static class PlayerControlCheckShapeshiftPatch
+{
+    private static readonly LogHandler logger = Logger.Handler(nameof(PlayerControl.CheckShapeshift));
+
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
+    {
+        if (AmongUsClient.Instance.IsGameOver || !AmongUsClient.Instance.AmHost)
+        {
+            return false;
+        }
+
+        // 無効な変身を弾く．これより前に役職等の処理をしてはいけない
+        if (!CheckInvalidShapeshifting(__instance, target, shouldAnimate))
+        {
+            __instance.RpcRejectShapeshift();
+            return false;
+        }
+
+        // 役職の処理
+        var role = __instance.GetRoleClass();
+        if (role?.OnCheckShapeshift(target, ref shouldAnimate) == false)
+        {
+            if (role.CanDesyncShapeshift)
+            {
+                __instance.RpcSpecificRejectShapeshift(target, shouldAnimate);
+            }
+            else
+            {
+                __instance.RpcRejectShapeshift();
+            }
+            return false;
+        }
+
+        __instance.RpcShapeshift(target, shouldAnimate);
+        return false;
+    }
+    private static bool CheckInvalidShapeshifting(PlayerControl instance, PlayerControl target, bool animate)
+    {
+        logger.Info($"Checking shapeshift {instance.GetNameWithRole()} -> {(target == null || target.Data == null ? "(null)" : target.GetNameWithRole())}");
+
+        if (!target || target.Data == null)
+        {
+            logger.Info("targetがnullのため変身をキャンセルします");
+            return false;
+        }
+        if (!instance.IsAlive())
+        {
+            logger.Info("変身者が死亡しているため変身をキャンセルします");
+            return false;
+        }
+        // RoleInfoによるdesyncシェイプシフター用の判定を追加
+        if (instance.Data.Role.Role != RoleTypes.Shapeshifter && instance.GetCustomRole().GetRoleInfo()?.BaseRoleType?.Invoke() != RoleTypes.Shapeshifter)
+        {
+            logger.Info("変身者がシェイプシフターではないため変身をキャンセルします");
+            return false;
+        }
+        if (instance.Data.Disconnected)
+        {
+            logger.Info("変身者が切断済のため変身をキャンセルします");
+            return false;
+        }
+        if (target.IsMushroomMixupActive() && animate)
+        {
+            logger.Info("キノコカオス中のため変身をキャンセルします");
+            return false;
+        }
+        if (MeetingHud.Instance && animate)
+        {
+            logger.Info("会議中のため変身をキャンセルします");
+            return false;
+        }
+        return true;
+    }
+}
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
@@ -238,8 +315,8 @@ class ShapeshiftPatch
 class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
-    public static Dictionary<byte, List<GameData.PlayerInfo>> WaitReport = new();
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] GameData.PlayerInfo target)
+    public static Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = new();
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
     {
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
@@ -612,16 +689,11 @@ class CoEnterVentPatch
                 !user.CanUseImpostorVentButton()) //インポスターベントも使えない
         )
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, -1);
-            writer.WritePacked(127);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
+
             _ = new LateTask(() =>
             {
-                int clientId = user.GetClientId();
-                MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);
-                writer2.Write(id);
-                AmongUsClient.Instance.FinishRpcImmediately(writer2);
-            }, 0.5f, "Fix DesyncImpostor Stuck");
+                __instance.RpcBootFromVent(id);
+            }, 0.5f, "Cancel Vent");
             return false;
         }
         return true;
@@ -773,5 +845,38 @@ public static class PlayerControlCheckSporeTriggerPatch
             return false;
         }
         return true;
+    }
+}
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckName))]
+class CmdCheckNameVersionCheckPatch
+{
+    public static void Postfix(PlayerControl __instance, ref string name)
+    {
+        //规范昵称
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (Options.FormatNameMode.GetInt() == 2 && __instance.GetClientId() != AmongUsClient.Instance.ClientId)
+            name = Main.Get_TName_Snacks;
+        else
+        {
+            // 删除非法字符
+            name = name.RemoveHtmlTags().Replace(@"\", string.Empty).Replace("/", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace("\0", string.Empty).Replace("<", string.Empty).Replace(">", string.Empty);
+            // 删除超出10位的字符
+            if (name.Length > 10) name = name[..10];
+            // 删除Emoji
+            if (Options.DisableEmojiName.GetBool()) name = Regex.Replace(name, @"\p{Cs}", string.Empty);
+            // 若无有效字符则随机取名
+            if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
+            // 替换重名
+            string fixedName = name;
+            int suffixNumber = 0;
+            while (Main.AllPlayerNames.ContainsValue(fixedName))
+            {
+                suffixNumber++;
+                fixedName = $"{name} {suffixNumber}";
+            }
+            if (!fixedName.Equals(name)) name = fixedName;
+        }
+        Main.AllPlayerNames.Remove(__instance.PlayerId);
+        Main.AllPlayerNames.TryAdd(__instance.PlayerId, name);
     }
 }

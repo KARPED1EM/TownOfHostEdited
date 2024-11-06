@@ -245,7 +245,6 @@ public static class MeetingHudPatch
             if (AmongUsClient.Instance.AmHost)
             {
                 AntiBlackout.SetIsDead();
-                Main.AllPlayerControls.Do(pc => RandomSpawn.CustomNetworkTransformPatch.FirstTP[pc.PlayerId] = false);
                 EAC.MeetingTimes = 0;
             }
             // MeetingVoteManagerを通さずに会議が終了した場合の後処理

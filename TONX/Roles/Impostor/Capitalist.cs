@@ -68,7 +68,7 @@ public sealed class Capitalist : RoleBase, IImpostor
 
         if (AmongUsClient.Instance.AmHost)
         {
-            GameData.Instance.RpcSetTasks(pc.PlayerId, new byte[0]);
+            pc.Data.RpcSetTasks(new byte[0]);
             pc.SyncSettings();
             Utils.NotifyRoles();
         }

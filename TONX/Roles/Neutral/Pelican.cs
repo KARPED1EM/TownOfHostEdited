@@ -68,13 +68,13 @@ public sealed class Pelican : RoleBase, IKiller, ISchrodingerCatOwner
     public bool CanUseKillButton() => Player.IsAlive();
     private void SendRPC()
     {
-        var sender = CreateSender(CustomRPC.SyncPelicanEatenPlayers);
+        var sender = CreateSender();
         sender.Writer.Write(EatenPlayers.Count);
         EatenPlayers.Do(sender.Writer.Write);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SyncPelicanEatenPlayers) return;
+        
         EatenPlayers = new();
         for (int i = 0; i < reader.ReadInt32(); i++)
             EatenPlayers.Add(reader.ReadByte());
@@ -115,7 +115,7 @@ public sealed class Pelican : RoleBase, IKiller, ISchrodingerCatOwner
         Logger.Info($"{killer.GetRealName()} 吞掉了 {target.GetRealName()}", "Pelican.OnCheckMurderAsKiller");
         return;
     }
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo reportTarget)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo reportTarget)
     {
         foreach (var id in EatenPlayers)
         {

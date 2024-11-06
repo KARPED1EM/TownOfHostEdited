@@ -59,7 +59,7 @@ public sealed class BoobyTrap : RoleBase, IImpostor
             }
         }, OptionSuicideDelay.GetFloat(), "BoobyTrap Death Delay");
     }
-    public override bool OnCheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override bool OnCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         if (Boobytraps.ContainsKey(target.PlayerId) && reporter.IsAlive())
         {

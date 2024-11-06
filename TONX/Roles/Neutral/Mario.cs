@@ -43,12 +43,12 @@ public sealed class Mario : RoleBase
     public override void Add() => VentedTimes = 0;
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SyncMarioVentedTimes);
+        using var sender = CreateSender();
         sender.Writer.Write(VentedTimes);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SyncMarioVentedTimes) return;
+        
         VentedTimes = reader.ReadInt32();
     }
     public override void ApplyGameOptions(IGameOptions opt)

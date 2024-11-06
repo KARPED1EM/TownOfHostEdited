@@ -292,7 +292,7 @@ public class MeetingVoteManager
         /// <summary>
         /// 驱逐玩家
         /// </summary>
-        public readonly GameData.PlayerInfo Exiled;
+        public readonly NetworkedPlayerInfo Exiled;
         /// <summary>
         /// 是否平票
         /// </summary>

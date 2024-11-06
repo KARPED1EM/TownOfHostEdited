@@ -62,14 +62,14 @@ class Penguin : RoleBase, IImpostor
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = AbductVictim != null ? AbductTimer : 255f;
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.PenguinSync);
+        using var sender = CreateSender();
 
         sender.Writer.Write(AbductVictim?.PlayerId ?? 255);
     }
 
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.PenguinSync) return;
+        
 
         var victim = reader.ReadByte();
         if (victim == 255)
@@ -149,7 +149,7 @@ class Penguin : RoleBase, IImpostor
     {
         return AbductVictim != null;
     }
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         stopCount = true;
         // 時間切れ状態で会議を迎えたらはしご中でも構わずキルする
@@ -204,7 +204,7 @@ class Penguin : RoleBase, IImpostor
             {
                 // 先にIsDeadをtrueにする(はしごチェイス封じ)
                 AbductVictim.Data.IsDead = true;
-                GameData.Instance.SetDirty();
+                AbductVictim.Data.MarkDirty();
                 // ペンギン自身がはしご上にいる場合，はしごを降りてからキルする
                 if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
@@ -240,14 +240,14 @@ class Penguin : RoleBase, IImpostor
                 var position = Player.transform.position;
                 if (Player.PlayerId != 0)
                 {
-                    RandomSpawn.TP(AbductVictim.NetTransform, position);
+                    AbductVictim.RpcSnapToForced(position);
                 }
                 else
                 {
                     _ = new LateTask(() =>
                     {
                         if (AbductVictim != null)
-                            RandomSpawn.TP(AbductVictim.NetTransform, position);
+                            AbductVictim.RpcSnapToForced(position);
                     }
                     , 0.25f, "");
                 }
