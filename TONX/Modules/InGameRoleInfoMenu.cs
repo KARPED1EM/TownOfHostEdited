@@ -59,7 +59,7 @@ public static class InGameRoleInfoMenu
         if (!Fill || !Menu) Init();
 
         MainInfoTMP.text = player?.GetCustomRole().GetRoleInfo()?.Description?.FullFormatHelp ?? "None";
-        AddonsInfoTMP.text = AddonDescription.FullFormatHelp(player);
+        AddonsInfoTMP.text = AddonDescription.FullFormatHelpByPlayer(player);
     }
 
     public static void Show()

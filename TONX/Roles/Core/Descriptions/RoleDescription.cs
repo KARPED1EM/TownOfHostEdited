@@ -36,13 +36,22 @@ public abstract class RoleDescription
             return builder.ToString();
         }
     }
-    public string GetFullFormatHelpWithAddons(PlayerControl player)
+    public string GetFullFormatHelpWithAddonsByPlayer(PlayerControl player)
     {
         var builder = new StringBuilder(1024);
 
         builder.Append(FullFormatHelp);
         builder.AppendFormat("<size={0}>\n", BlankLineSize);
-        builder.Append(AddonDescription.FullFormatHelp(player));
+        builder.Append(AddonDescription.FullFormatHelpByPlayer(player));
+
+        return builder.ToString();
+    }
+    public string GetFullFormatHelpWithAddonsByRole(CustomRoles role)
+    {
+        var builder = new StringBuilder(1024);
+
+        builder.AppendFormat("<size={0}>\n", BlankLineSize);
+        builder.Append(AddonDescription.FullFormatHelpBySubRole(role));
 
         return builder.ToString();
     }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TONX.Roles.Core;
 using TONX.Roles.Core.Interfaces;
+using static UnityEngine.GraphicsBuffer;
 
 namespace TONX.Roles.Neutral;
 public sealed class Executioner : RoleBase, IAdditionalWinner
@@ -34,7 +35,6 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         ChangeRolesAfterTargetKilled = ChangeRoles[OptionChangeRolesAfterTargetKilled.GetValue()];
 
         Executioners.Add(this);
-        CustomRoleManager.OnMurderPlayerOthers.Add(OnMurderPlayerOthers);
 
         TargetExiled = false;
     }
@@ -95,10 +95,6 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
     {
         Executioners.Remove(this);
 
-        if (Executioners.Count <= 0)
-        {
-            CustomRoleManager.OnMurderPlayerOthers.Remove(OnMurderPlayerOthers);
-        }
     }
     public void SendRPC()
     {
@@ -117,13 +113,11 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         TargetId = byte.MaxValue;
         SendRPC();
     }
-    public static void OnMurderPlayerOthers(MurderInfo info)
+    public override void OnPlayerDeath(PlayerControl player, CustomDeathReason deathReason, bool isOnMeeting = false)
     {
-        var target = info.AttemptTarget;
-
         foreach (var executioner in Executioners.ToArray())
         {
-            if (executioner.TargetId == target.PlayerId)
+            if (executioner.TargetId == player.PlayerId)
             {
                 executioner.ChangeRole();
                 break;

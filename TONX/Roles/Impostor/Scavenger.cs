@@ -36,9 +36,9 @@ public sealed class Scavenger : RoleBase, IImpostor
     {
         var (killer, target) = info.AttemptTuple;
 
-        Utils.TP(killer.NetTransform, target.GetTruePosition());
+        killer.RpcSnapToForced(target.GetTruePosition());
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-        Utils.TP(target.NetTransform, Utils.GetBlackRoomPS());
+        target.RpcSnapToForced(Utils.GetBlackRoomPS());
         target.SetRealKiller(killer);
         target.RpcMurderPlayerV2(target);
         killer.SetKillCooldownV2();

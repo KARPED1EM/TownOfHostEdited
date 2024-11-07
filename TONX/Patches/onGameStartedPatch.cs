@@ -293,7 +293,8 @@ internal class SelectRolesPatch
     }
     private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
     {
-        if (!role.IsExist(true)) return;
+        if (!role.IsEnable())
+return;
 
         var hostId = PlayerControl.LocalPlayer.PlayerId;
 

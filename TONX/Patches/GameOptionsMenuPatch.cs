@@ -79,7 +79,10 @@ public static class GameOptionsMenuPatch
 
                 if (enabled) num -= 0.63f;
             }
-
+            if (option.IsHeader)
+            {
+                num -= 0.1f;
+            }
             if (option is TextOptionItem) continue;
 
             var baseGameSetting = GetSetting(option);
@@ -140,10 +143,7 @@ public static class GameOptionsMenuPatch
                     continue;
 
             }
-            if (option.IsHeader)
-            {
-                num -= 0.1f;
-            }
+
             optionBehaviour.transform.localPosition = new Vector3(0.952f, num, -2f);
 
 
@@ -270,7 +270,10 @@ public static class GameOptionsMenuPatch
 
             var enabled = !option.IsHiddenOn(Options.CurrentGameMode)
                          && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
-
+            if (option.IsHeader)
+            {
+                num -= 0.1f;
+            }
             if (ModGameOptionsMenu.CategoryHeaderList.TryGetValue(index, out var categoryHeaderMasked))
             {
                 categoryHeaderMasked.transform.localPosition = new Vector3(-0.903f, num, -2f);

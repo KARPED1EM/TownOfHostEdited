@@ -15,7 +15,7 @@ public static class OptionShower
 {
     public static int currentPage = 0;
     public static List<string> pages = new();
-    public static string GetText() => $"{GetString("PressTabToNextPage")}({currentPage + 1}/{pages.Count})\n\n{pages[currentPage]}";
+    public static string GetText() => $"{GetString("PressTabTONXtPage")}({currentPage + 1}/{pages.Count})\n\n{pages[currentPage]}";
     public static string BuildText()
     {
         //初期化

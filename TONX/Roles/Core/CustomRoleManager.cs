@@ -11,6 +11,7 @@ using TONX.Roles.AddOns.Common;
 using TONX.Roles.AddOns.Crewmate;
 using TONX.Roles.AddOns.Impostor;
 using TONX.Roles.Core.Interfaces;
+using static TONX.MeetingHudPatch;
 
 namespace TONX.Roles.Core;
 
@@ -102,9 +103,24 @@ public static class CustomRoleManager
                 }
             }
         }
+        if (Options.MadmateSpawnMode.GetInt() == 1)
+        {
+            if (Main.AllPlayerControls.Count(p => p.Is(CustomRoles.Madmate)) < CustomRoles.Madmate.GetCount() && attemptTarget.CanBeMadmate())
+            {
+                attemptTarget.RpcSetCustomRole(CustomRoles.Madmate);
+                Logger.Info($"注册附加职业：{attemptTarget.GetNameWithRole()} => {CustomRoles.Madmate}", "AssignCustomSubRoles");
+                attemptTarget.ShowPopUp(Translator.GetString("MadmateSelfVoteModeSuccessfulMutiny"));
+            }
+            return false;
+        }
 
-        //キル可能だった場合のみMurderPlayerに進む
-        if (info.CanKill && info.DoKill)
+        if (Main.ShieldPlayer == byte.MaxValue)
+        {
+            Main.ShieldPlayer = attemptTarget.PlayerId;
+            return false;
+        }
+            //キル可能だった場合のみMurderPlayerに進む
+            if (info.CanKill && info.DoKill)
         {
             // 调用职业类对击杀发生前进行预处理如设置冷却等操作
             if (killerRole is IKiller killer2) killer2?.BeforeMurderPlayerAsKiller(info);
@@ -122,6 +138,7 @@ public static class CustomRoleManager
             if (!info.DoKill) Logger.Info($"{appearanceKiller.GetNameWithRole()} 无法击杀", "CheckMurder");
             return false;
         }
+
     }
     /// <summary>
     /// MurderPlayer 事件的处理
@@ -244,6 +261,8 @@ public static class CustomRoleManager
                 cancel = true;
             }
         }
+        if (Options.DeadImpCantSabotage.GetBool() && player.IsImp()) cancel = true;
+        if (Fool.OptionImpFoolCanNotSabotage.GetBool() && player.Is(CustomRoles.Fool) && player.IsImp()) cancel = true;
         return !cancel;
     }
     // ==初始化处理 ==
@@ -591,17 +610,17 @@ public enum CustomRoles
     Terrorist,
     Executioner,
     Jackal,
-    Innocent, //TODO
+    Innocent, 
     Pelican,
-    Revolutionist, //TODO
+    Revolutionist, 
     Hater,
     Konan, //TODO
     Demon,
-    Stalker, //TODO
+    Stalker, 
     Workaholic,
-    Collector, //TODO
-    Provocateur, //TODO
-    Sunnyboy, //TODO
+    Collector, 
+    Provocateur, 
+    Sunnyboy, 
     BloodKnight,
     Follower,
     Succubus,

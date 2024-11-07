@@ -168,19 +168,16 @@ public class GameSettingMenuPatch
         // ボタンテキスト
         var textLabel = gameSettingButton.GetComponentInChildren<TextMeshPro>();
         // 翻訳破棄
-        textLabel.DestroyTranslator();
         // バニラ設定ボタンの名前を設定
-        textLabel.text = "";
         // ボタンテキストの色変更
-        gameSettingButton.activeTextColor = gameSettingButton.inactiveTextColor = Color.black;
+        gameSettingButton.activeTextColor = gameSettingButton.inactiveTextColor = new Color32(0, 164, 255, 255);
         // ボタンテキストの選択中の色変更
-        gameSettingButton.selectedTextColor = Color.blue;
+        gameSettingButton.selectedTextColor = new Color32(0, 164, 255, 255);
 
-        var vanillaActiveButton = Utils.LoadSprite($"TownOfHost_Y.Resources.Tab_Active_VanillaGameSettings.png", 100f);
         // 各種スプライトをオリジナルのものに変更
-        gameSettingButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost_Y.Resources.Tab_Small_VanillaGameSettings.png", 100f);
-        gameSettingButton.activeSprites.GetComponent<SpriteRenderer>().sprite = vanillaActiveButton;
-        gameSettingButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = vanillaActiveButton;
+        gameSettingButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Utils.ShadeColor(new Color32(0, 164, 255, 255), 0.2f);
+        gameSettingButton.activeSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 164, 255, 255);
+        gameSettingButton.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 164, 255, 255);
         // ボタンの座標設定
         gameSettingButton.transform.localPosition = buttonPosition_Left;
         // ボタンのサイズ設定

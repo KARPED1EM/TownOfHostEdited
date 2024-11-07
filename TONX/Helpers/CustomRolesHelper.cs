@@ -44,7 +44,7 @@ static class CustomRolesHelper
     }
     public static bool IsAddon(this CustomRoles role) => (int)role > 500;
     public static bool IsValid(this CustomRoles role) => role is not CustomRoles.GM and not CustomRoles.NotAssigned;
-    public static bool IsExist(this CustomRoles role, bool CountDeath = false) => Main.AllPlayerControls.Any(x => x.Is(role) && x.IsAlive() || CountDeath);
+    public static bool IsExist(this CustomRoles role, bool CountDeath = false) => Main.AllPlayerControls.Any(x => x.Is(role) && (x.IsAlive() || CountDeath));
     public static bool IsVanilla(this CustomRoles role)
     {
         return

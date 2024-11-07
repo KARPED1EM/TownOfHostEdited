@@ -617,6 +617,18 @@ static class ExtendedPlayerControl
         var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
         return GetString($"{Prefix}{text}{Info}");
     }
+    public static string GetRoleInfoByRole(this CustomRoles role, bool InfoLong = false)
+    {
+        if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
+            InfoLong = false;
+
+        var text = role.ToString();
+
+        var Prefix = "";
+
+        var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
+        return GetString($"{Prefix}{text}{Info}");
+    }
     public static void SetDeathReason(this PlayerControl target, CustomDeathReason reason)
     {
         if (target == null)
