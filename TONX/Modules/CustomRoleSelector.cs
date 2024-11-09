@@ -220,6 +220,9 @@ internal static class CustomRoleSelector
 
     public static int addScientistNum = 0;
     public static int addEngineerNum = 0;
+    public static int addTrackerNum = 0;
+    public static int addNoisemakerNum = 0; 
+    public static int addPhantomNum = 0;
     public static int addShapeshifterNum = 0;
     public static void CalculateVanillaRoleCount()
     {
@@ -227,6 +230,10 @@ internal static class CustomRoleSelector
         addEngineerNum = 0;
         addScientistNum = 0;
         addShapeshifterNum = 0;
+        addNoisemakerNum = 0;
+        addPhantomNum = 0;
+
+        addTrackerNum = 0;
         foreach (var role in AllRoles)
         {
             switch (role.GetRoleInfo()?.BaseRoleType.Invoke())
@@ -234,6 +241,9 @@ internal static class CustomRoleSelector
                 case RoleTypes.Scientist: addScientistNum++; break;
                 case RoleTypes.Engineer: addEngineerNum++; break;
                 case RoleTypes.Shapeshifter: addShapeshifterNum++; break;
+                case RoleTypes.Tracker: addTrackerNum++; break;
+                case RoleTypes.Noisemaker: addNoisemakerNum++; break;
+                case RoleTypes.Phantom: addPhantomNum++; break;
             }
         }
     }
@@ -244,6 +254,9 @@ internal static class CustomRoleSelector
             RoleTypes.Engineer => addEngineerNum,
             RoleTypes.Scientist => addScientistNum,
             RoleTypes.Shapeshifter => addShapeshifterNum,
+            RoleTypes.Tracker => addTrackerNum,
+            RoleTypes.Noisemaker => addNoisemakerNum,
+            RoleTypes.Phantom => addPhantomNum,
             _ => 0
         };
     }
