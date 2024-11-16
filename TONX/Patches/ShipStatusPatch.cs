@@ -125,15 +125,5 @@ class CheckTaskCompletionPatch
         return true;
     }
 }
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairCriticalSabotages))]
-class RepairCriticalSabotages
-{ 
-public static void Prefix()
-    {
-        if (player.Is(CustomRoles.Fool) && (systemType is SystemTypes.Sabotage or SystemTypes.Comms or SystemTypes.Electrical or SystemTypes.Reactor)) return false;
 
-    }
-}
-
-        //蠢蛋无法修复破坏
 
