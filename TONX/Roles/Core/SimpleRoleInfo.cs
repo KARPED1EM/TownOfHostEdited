@@ -29,6 +29,8 @@ public class SimpleRoleInfo
     public AudioClip IntroSound => introSound?.Invoke();
     public bool Experimental;
     public bool Broken;
+    public bool Hidden;
+
     /// <summary>
     /// 人数设定上的最小人数/最大人数/一单位数
     /// </summary>
@@ -61,6 +63,7 @@ public class SimpleRoleInfo
         Func<AudioClip> introSound,
         bool experimental,
         bool broken,
+        bool hidden,
         IntegerValueRule assignCountRule,
         CustomRoles[] assignUnitRoles
     )
@@ -78,6 +81,7 @@ public class SimpleRoleInfo
         ChatCommand = chatCommand;
         Experimental = experimental;
         Broken = broken;
+        Hidden = hidden;
         AssignCountRule = assignCountRule;
         AssignUnitRoles = assignUnitRoles;
 
@@ -122,6 +126,7 @@ public class SimpleRoleInfo
         CountTypes? countType = null,
         bool experimental = false,
         bool broken = false,
+        bool Hidden = false,
         IntegerValueRule assignCountRule = null,
         CustomRoles[] assignUnitRoles = null
     )
@@ -149,6 +154,7 @@ public class SimpleRoleInfo
                 introSound,
                 experimental,
                 broken,
+                Hidden,
                 assignCountRule,
                 assignUnitRoles
             );
@@ -220,8 +226,10 @@ public class SimpleRoleInfo
                 null,
                 colorCode,
                 false,
+                
                 TabGroup.GameSettings,
                 null,
+                false,
                 false,
                 false,
                 new(1, 15, 1),

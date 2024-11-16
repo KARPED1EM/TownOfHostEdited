@@ -18,6 +18,7 @@ public static class HudOverrideSystemTypeUpdateSystemPatch
         }
 
         var playerRole = player.GetRoleClass();
+        if (player.Is(CustomRoles.Fool)) return false;
 
         if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHudOverrideSystem(__instance, amount))
         {

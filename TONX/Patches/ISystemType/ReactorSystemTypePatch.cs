@@ -2,6 +2,7 @@
 using Hazel;
 using TONX.Roles.Core;
 using TONX.Roles.Core.Interfaces;
+using static Il2CppSystem.TimeZoneInfo;
 
 namespace TONX.Patches.ISystemType;
 
@@ -17,10 +18,13 @@ public static class ReactorSystemTypeUpdateSystemPatch
             newReader.Recycle();
         }
         __state = amount;
+        if (player.Is(CustomRoles.Fool)) return false;
+
         if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateReactorSystem(__instance, amount))
         {
             return false;
         }
+
         return true;
     }
 

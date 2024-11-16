@@ -23,7 +23,6 @@ public class ChatCommand(List<string> keywords, CommandAccess access, Func<Messa
 
     public static void Init()
     {
-        InitRoleCommands();
         AllCommands = new()
         {
             new(["dump"], CommandAccess.LocalMod, mc =>

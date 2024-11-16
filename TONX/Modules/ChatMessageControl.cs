@@ -27,14 +27,16 @@ public class MessageControl
         Player = player;
         Message = message;
 
-        if (ChatCommand.AllCommands == null || !ChatCommand.AllCommands.Any())
-            ChatCommand.Init();
+        ChatCommand.InitRoleCommands();
 
         MsgRecallMode recallMode = MsgRecallMode.None;
         // Check if it is a role command
         IsCommand = Player.GetRoleClass()?.OnSendMessage(Message, out recallMode) ?? false;
         if (IsCommand && !AmongUsClient.Instance.AmHost) ForceSend = true;
         CustomRoleManager.ReceiveMessage.Do(a => a.Invoke(this));
+
+        if (ChatCommand.AllCommands == null || !ChatCommand.AllCommands.Any())
+            ChatCommand.Init();
 
         RecallMode = recallMode;
         if (IsCommand || !AmongUsClient.Instance.AmHost) return;

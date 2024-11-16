@@ -16,7 +16,7 @@ public static class HeliSabotageSystemUpdateSystemPatch
             amount = newReader.ReadByte();
             newReader.Recycle();
         }
-
+        if (player.Is(CustomRoles.Fool)) return false;
         if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHeliSabotageSystem(__instance, amount))
         {
             return false;

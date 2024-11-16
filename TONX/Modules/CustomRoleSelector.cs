@@ -61,6 +61,16 @@ internal static class CustomRoleSelector
             else if (role.IsNeutral()) NeutralRateList.Add(role);
             else roleRateList.Add(role);
         }
+        
+        if (!Options.DisableHiddenRoles.GetBool())
+        {
+            foreach (var role in roleList.Where(x => x.GetRoleInfo()?.Hidden ?? false))
+            {
+                if (role.IsImpostor()) ImpOnList.Add(role);
+                else if (role.IsNeutral()) NeutralOnList.Add(role);
+                else roleOnList.Add(role);
+            }
+        }
 
         // 抽取优先职业（内鬼）
         while (ImpOnList.Count > 0)

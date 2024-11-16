@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Hazel;
+using TONX.Roles.AddOns.Common;
 using TONX.Roles.Core;
 using TONX.Roles.Core.Interfaces;
 
@@ -16,6 +17,7 @@ public static class DoorsSystemTypeUpdateSystemPatch
             amount = newReader.ReadByte();
             newReader.Recycle();
         }
+        if (player.Is(CustomRoles.Fool) && Fool.OptionImpFoolCanNotOpenDoor.GetBool()) return false;
 
         if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateDoorsSystem(__instance, amount))
         {

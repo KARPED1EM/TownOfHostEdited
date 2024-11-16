@@ -2,6 +2,8 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Il2CppSystem.TimeZoneInfo;
+using TONX.Roles.Core;
 
 namespace TONX;
 
@@ -123,3 +125,15 @@ class CheckTaskCompletionPatch
         return true;
     }
 }
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairCriticalSabotages))]
+class RepairCriticalSabotages
+{ 
+public static void Prefix()
+    {
+        if (player.Is(CustomRoles.Fool) && (systemType is SystemTypes.Sabotage or SystemTypes.Comms or SystemTypes.Electrical or SystemTypes.Reactor)) return false;
+
+    }
+}
+
+        //蠢蛋无法修复破坏
+

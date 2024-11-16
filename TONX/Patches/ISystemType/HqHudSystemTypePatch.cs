@@ -19,6 +19,7 @@ public static class HqHudSystemTypeUpdateSystemPatch
 
         var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
         var playerRole = player.GetRoleClass();
+        if (player.Is(CustomRoles.Fool)) return false;
 
         if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHqHudSystem(__instance, amount))
         {
