@@ -84,10 +84,10 @@ CustomRoles.Shapeshifter or
             {
                 CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
                 CustomRoles.Scientist => roleOpt.GetNumPerGame(RoleTypes.Scientist),
-                CustomRoles.Noisemaker => roleOpt.GetChancePerGame(RoleTypes.Noisemaker),
-                CustomRoles.Tracker => roleOpt.GetChancePerGame(RoleTypes.Tracker),
+                CustomRoles.Noisemaker => roleOpt.GetNumPerGame(RoleTypes.Noisemaker),
+                CustomRoles.Tracker => roleOpt.GetNumPerGame(RoleTypes.Tracker),
                 CustomRoles.Shapeshifter => roleOpt.GetNumPerGame(RoleTypes.Shapeshifter),
-                CustomRoles.Phantom => roleOpt.GetChancePerGame(RoleTypes.Phantom),
+                CustomRoles.Phantom => roleOpt.GetNumPerGame(RoleTypes.Phantom),
                 CustomRoles.GuardianAngel => roleOpt.GetNumPerGame(RoleTypes.GuardianAngel),
                 CustomRoles.Crewmate => roleOpt.GetNumPerGame(RoleTypes.Crewmate),
                 _ => 0
@@ -106,11 +106,11 @@ CustomRoles.Shapeshifter or
             return role switch
             {
                 CustomRoles.Engineer => roleOpt.GetChancePerGame(RoleTypes.Engineer),
-                CustomRoles.Tracker => roleOpt.GetNumPerGame(RoleTypes.Tracker),
-                CustomRoles.Noisemaker => roleOpt.GetNumPerGame(RoleTypes.Noisemaker),
+                CustomRoles.Tracker => roleOpt.GetChancePerGame(RoleTypes.Tracker),
+                CustomRoles.Noisemaker => roleOpt.GetChancePerGame(RoleTypes.Noisemaker),
                 CustomRoles.Scientist => roleOpt.GetChancePerGame(RoleTypes.Scientist),
                 CustomRoles.Shapeshifter => roleOpt.GetChancePerGame(RoleTypes.Shapeshifter),
-                CustomRoles.Phantom => roleOpt.GetNumPerGame(RoleTypes.Phantom),
+                CustomRoles.Phantom => roleOpt.GetChancePerGame(RoleTypes.Phantom),
                 CustomRoles.GuardianAngel => roleOpt.GetChancePerGame(RoleTypes.GuardianAngel),
                 CustomRoles.Crewmate => roleOpt.GetChancePerGame(RoleTypes.Crewmate),
                 _ => 0
