@@ -468,7 +468,7 @@ public static class Utils
         if (Options.HideGameSettings.GetBool() && Main.AllPlayerControls.Count() > 1)
             return string.Empty;
         string mode;
-        if (role.IsVanilla()) return "";
+        if (role.IsVanilla()) return role.GetChance().ToString() + "%";
         else if (!Options.CustomRoleSpawnChances.ContainsKey(role)) mode = GetString("HidenRole");
         else mode = Options.CustomRoleSpawnChances[role].GetString().RemoveHtmlTags();
         return parentheses ? $"({mode})" : mode;

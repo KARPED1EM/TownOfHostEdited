@@ -7,12 +7,12 @@ namespace TONX;
 
 static class CustomRolesHelper
 {
-    /// <summary>¤¹¤Ù¤Æ¤ÎÒÛÂš(ÊôÐÔ¤Ïº¬¤Þ¤Ê¤¤)</summary>
+    /// <summary>ï¿½ï¿½ï¿½Ù¤Æ¤ï¿½ï¿½ï¿½Âš(ï¿½ï¿½ï¿½Ô¤Ïºï¿½ï¿½Þ¤Ê¤ï¿½)</summary>
     public static readonly CustomRoles[] AllRoles = EnumHelper.GetAllValues<CustomRoles>().Where(role => role < CustomRoles.NotAssigned).ToArray();
-    /// <summary>¤¹¤Ù¤Æ¤ÎÊôÐÔ</summary>
+    /// <summary>ï¿½ï¿½ï¿½Ù¤Æ¤ï¿½ï¿½ï¿½ï¿½ï¿½</summary>
     public static readonly CustomRoles[] AllAddOns = EnumHelper.GetAllValues<CustomRoles>().Where(role => role > CustomRoles.NotAssigned).ToArray();
-    /// <summary>¥¹¥¿¥ó¥À©`¥É¥â©`¥É¤Ç³ö¬F¤Ç¤­¤ë¤¹¤Ù¤Æ¤ÎÒÛÂš</summary>
-    public static readonly CustomRoles[] AllStandardRoles = AllRoles.ToArray();
+    /// <summary>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½É¥ï¿½`ï¿½É¤Ç³ï¿½ï¿½Fï¿½Ç¤ï¿½ï¿½ë¤¹ï¿½Ù¤Æ¤ï¿½ï¿½ï¿½Âš</summary>
+    public static readonly CustomRoles[] AllStandardRoles = EnumHelper.GetAllValues<CustomRoles>().ToArray();
     public static readonly CustomRoleTypes[] AllRoleTypes = EnumHelper.GetAllValues<CustomRoleTypes>();
 
     public static bool IsImpostor(this CustomRoles role)

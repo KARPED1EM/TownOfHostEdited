@@ -15,8 +15,12 @@ public sealed class Bard : RoleBase, IImpostor
             CustomRoleTypes.Impostor,
             4900,
             null,
-            "ba|吟游詩人|诗人",
-            Hidden: true
+            "ba|吟游詩人|诗人"
+            #if RELEASE
+,
+            Hidden: true // 测试用
+#endif
+
         );
 
     public Bard(PlayerControl player)
