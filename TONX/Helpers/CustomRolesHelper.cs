@@ -7,12 +7,12 @@ namespace TONX;
 
 static class CustomRolesHelper
 {
-    /// <summary>¤¹¤Ù¤Æ¤ÎÒÛÂš(ÊôÐÔ¤Ïº¬¤Þ¤Ê¤¤)</summary>
+    /// <summary>ï¿½ï¿½ï¿½Ù¤Æ¤ï¿½ï¿½ï¿½Âš(ï¿½ï¿½ï¿½Ô¤Ïºï¿½ï¿½Þ¤Ê¤ï¿½)</summary>
     public static readonly CustomRoles[] AllRoles = EnumHelper.GetAllValues<CustomRoles>().Where(role => role < CustomRoles.NotAssigned).ToArray();
-    /// <summary>¤¹¤Ù¤Æ¤ÎÊôÐÔ</summary>
+    /// <summary>ï¿½ï¿½ï¿½Ù¤Æ¤ï¿½ï¿½ï¿½ï¿½ï¿½</summary>
     public static readonly CustomRoles[] AllAddOns = EnumHelper.GetAllValues<CustomRoles>().Where(role => role > CustomRoles.NotAssigned).ToArray();
-    /// <summary>¥¹¥¿¥ó¥À©`¥É¥â©`¥É¤Ç³ö¬F¤Ç¤­¤ë¤¹¤Ù¤Æ¤ÎÒÛÂš</summary>
-    public static readonly CustomRoles[] AllStandardRoles = AllRoles.ToArray();
+    /// <summary>ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½É¥ï¿½`ï¿½É¤Ç³ï¿½ï¿½Fï¿½Ç¤ï¿½ï¿½ë¤¹ï¿½Ù¤Æ¤ï¿½ï¿½ï¿½Âš</summary>
+    public static readonly CustomRoles[] AllStandardRoles = EnumHelper.GetAllValues<CustomRoles>().ToArray();
     public static readonly CustomRoleTypes[] AllRoleTypes = EnumHelper.GetAllValues<CustomRoleTypes>();
 
     public static bool IsImpostor(this CustomRoles role)
@@ -84,10 +84,10 @@ CustomRoles.Shapeshifter or
             {
                 CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
                 CustomRoles.Scientist => roleOpt.GetNumPerGame(RoleTypes.Scientist),
-                CustomRoles.Noisemaker => roleOpt.GetChancePerGame(RoleTypes.Noisemaker),
-                CustomRoles.Tracker => roleOpt.GetChancePerGame(RoleTypes.Tracker),
+                CustomRoles.Noisemaker => roleOpt.GetNumPerGame(RoleTypes.Noisemaker),
+                CustomRoles.Tracker => roleOpt.GetNumPerGame(RoleTypes.Tracker),
                 CustomRoles.Shapeshifter => roleOpt.GetNumPerGame(RoleTypes.Shapeshifter),
-                CustomRoles.Phantom => roleOpt.GetChancePerGame(RoleTypes.Phantom),
+                CustomRoles.Phantom => roleOpt.GetNumPerGame(RoleTypes.Phantom),
                 CustomRoles.GuardianAngel => roleOpt.GetNumPerGame(RoleTypes.GuardianAngel),
                 CustomRoles.Crewmate => roleOpt.GetNumPerGame(RoleTypes.Crewmate),
                 _ => 0
@@ -106,11 +106,11 @@ CustomRoles.Shapeshifter or
             return role switch
             {
                 CustomRoles.Engineer => roleOpt.GetChancePerGame(RoleTypes.Engineer),
-                CustomRoles.Tracker => roleOpt.GetNumPerGame(RoleTypes.Tracker),
-                CustomRoles.Noisemaker => roleOpt.GetNumPerGame(RoleTypes.Noisemaker),
+                CustomRoles.Tracker => roleOpt.GetChancePerGame(RoleTypes.Tracker),
+                CustomRoles.Noisemaker => roleOpt.GetChancePerGame(RoleTypes.Noisemaker),
                 CustomRoles.Scientist => roleOpt.GetChancePerGame(RoleTypes.Scientist),
                 CustomRoles.Shapeshifter => roleOpt.GetChancePerGame(RoleTypes.Shapeshifter),
-                CustomRoles.Phantom => roleOpt.GetNumPerGame(RoleTypes.Phantom),
+                CustomRoles.Phantom => roleOpt.GetChancePerGame(RoleTypes.Phantom),
                 CustomRoles.GuardianAngel => roleOpt.GetChancePerGame(RoleTypes.GuardianAngel),
                 CustomRoles.Crewmate => roleOpt.GetChancePerGame(RoleTypes.Crewmate),
                 _ => 0

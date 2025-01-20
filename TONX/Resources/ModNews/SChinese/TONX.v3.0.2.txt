@@ -2,7 +2,7 @@
 #Title:TownOfNext v3.0.2
 #SubTitle:★★★★TO The Next★★★★
 #ShortTitle:★TONX v3.0.2
-#Date:2023-11-16T00:00:00Z
+#Date:2024-11-16T00:00:00Z
 #-----------------------------
 一年前，TONX就此诞生
 
